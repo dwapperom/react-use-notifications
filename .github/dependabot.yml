@@ -9,9 +9,17 @@ updates:
       dev-dependencies:
         dependency-type: development
     ignore:
-      # A major bump of the test runner is a deliberate call, not a weekly chore. Patches and
-      # minors still come through.
+      # Majors here are deliberate migrations, not weekly chores. Patches and minors still come
+      # through. vitest and its coverage provider have to move together, so neither goes alone.
       - dependency-name: vitest
+        update-types:
+          - version-update:semver-major
+      - dependency-name: "@vitest/coverage-v8"
+        update-types:
+          - version-update:semver-major
+      # TypeScript 7 is the Go rewrite and tsup 8 cannot build types with it:
+      # "Cannot read properties of undefined (reading 'useCaseSensitiveFileNames')".
+      - dependency-name: typescript
         update-types:
           - version-update:semver-major
 
