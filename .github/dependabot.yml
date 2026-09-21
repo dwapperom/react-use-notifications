@@ -8,6 +8,12 @@ updates:
     groups:
       dev-dependencies:
         dependency-type: development
+    ignore:
+      # A major bump of the test runner is a deliberate call, not a weekly chore. Patches and
+      # minors still come through.
+      - dependency-name: vitest
+        update-types:
+          - version-update:semver-major
 
   - package-ecosystem: github-actions
     directory: /
