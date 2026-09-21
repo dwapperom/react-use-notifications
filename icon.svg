@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="react-use-notifications">
+  <!-- A stack of toasts, which is what the library actually owns. The two behind are occluded by
+       the one in front rather than lined up under it: three evenly spaced bars read as a list, and
+       at 16px as a hamburger menu. Masked rather than gapped with a background colour, so there is
+       no light and dark variant to keep in sync. -->
+  <mask id="under-front">
+    <rect width="32" height="32" fill="#fff" />
+    <rect x="0.5" y="12.5" width="31" height="18" rx="6.5" fill="#000" />
+  </mask>
+  <mask id="under-middle">
+    <rect width="32" height="32" fill="#fff" />
+    <rect x="2.5" y="7" width="27" height="18" rx="6.5" fill="#000" />
+  </mask>
+
+  <rect x="6" y="3" width="20" height="15" rx="5" fill="#ef4444" opacity="0.35" mask="url(#under-middle)" />
+  <rect x="4" y="8.5" width="24" height="15" rx="5" fill="#ef4444" opacity="0.65" mask="url(#under-front)" />
+  <rect x="2" y="14" width="28" height="15" rx="5" fill="#ef4444" />
+</svg>

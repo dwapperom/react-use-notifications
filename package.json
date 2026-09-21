@@ -1,0 +1,42 @@
+{
+  "name": "react-use-notifications-monorepo",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.17.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "pnpm --recursive run build",
+    "dev": "pnpm --recursive run dev",
+    "typecheck": "tsc --noEmit && pnpm --recursive run typecheck",
+    "test": "pnpm --recursive run test",
+    "test:coverage": "pnpm --recursive run test:coverage",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "check:pkg": "pnpm --recursive run check:pkg",
+    "verify": "pnpm build && pnpm typecheck && pnpm lint && pnpm knip && pnpm test && pnpm check:pkg",
+    "clean": "pnpm --recursive run clean",
+    "knip": "knip",
+    "e2e": "playwright test",
+    "e2e:ui": "playwright test --ui",
+    "changeset": "changeset",
+    "version:packages": "changeset version",
+    "release": "pnpm build && changeset publish"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^3.0.3",
+    "@eslint/js": "^9.18.0",
+    "@playwright/test": "^1.63.0",
+    "@stylistic/eslint-plugin": "^5.10.0",
+    "@types/node": "^20.11.0",
+    "eslint": "^9.18.0",
+    "eslint-plugin-perfectionist": "^5.10.1",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "eslint-plugin-sonarjs": "^3.0.1",
+    "globals": "^15.14.0",
+    "knip": "^6.37.0",
+    "typescript": "^5.3.3",
+    "typescript-eslint": "^8.20.0"
+  }
+}

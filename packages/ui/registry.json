@@ -1,0 +1,77 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "react-use-notifications",
+  "homepage": "https://dennis.is-a.dev/react-use-notifications/",
+  "items": [
+    {
+      "name": "notification-toaster",
+      "type": "registry:ui",
+      "title": "Notification Toaster",
+      "description": "In-app toast region that renders the notifications the operating system refused or that arrived while the tab was focused.",
+      "dependencies": ["react-use-notifications", "react-use-notifications-ui"],
+      "files": [
+        {
+          "path": "registry/notification-toaster.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/notification-toaster.tsx"
+        }
+      ]
+    },
+    {
+      "name": "request-permission-button",
+      "type": "registry:ui",
+      "title": "Request Permission Button",
+      "description": "Asks for notification permission from inside the click, which is the only place Safari allows it.",
+      "dependencies": ["react-use-notifications", "react-use-notifications-ui"],
+      "files": [
+        {
+          "path": "registry/request-permission-button.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/request-permission-button.tsx"
+        }
+      ]
+    },
+    {
+      "name": "notification-permission-badge",
+      "type": "registry:ui",
+      "title": "Notification Permission Badge",
+      "description": "Live badge for the four permission states, including the case where the browser has no Notifications API.",
+      "dependencies": ["react-use-notifications", "react-use-notifications-ui"],
+      "files": [
+        {
+          "path": "registry/notification-permission-badge.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/notification-permission-badge.tsx"
+        }
+      ]
+    },
+    {
+      "name": "notification-action-list",
+      "type": "registry:ui",
+      "title": "Notification Action List",
+      "description": "Renders a notification's action buttons and surfaces the ones the browser refused to draw rather than dropping them.",
+      "dependencies": ["react-use-notifications", "react-use-notifications-ui"],
+      "files": [
+        {
+          "path": "registry/notification-action-list.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/notification-action-list.tsx"
+        }
+      ]
+    },
+    {
+      "name": "counter-badge",
+      "type": "registry:ui",
+      "title": "Counter Badge",
+      "description": "Unread count with an overflow cap, ringed so it stays legible over an icon or an avatar.",
+      "dependencies": ["react-use-notifications-ui"],
+      "files": [
+        {
+          "path": "registry/counter-badge.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/counter-badge.tsx"
+        }
+      ]
+    }
+  ]
+}

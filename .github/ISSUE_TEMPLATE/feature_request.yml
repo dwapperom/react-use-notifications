@@ -1,0 +1,23 @@
+name: Feature request
+description: Suggest something new
+labels: [enhancement]
+
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to do
+      description: The problem you hit, rather than the solution you have in mind.
+    validations:
+      required: true
+
+  - type: textarea
+    id: idea
+    attributes:
+      label: What you would like instead
+      description: An API sketch helps, even a rough one.
+
+  - type: textarea
+    id: workaround
+    attributes:
+      label: How you work around it today
