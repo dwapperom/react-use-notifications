@@ -1,0 +1,31 @@
+packages:
+  - 'packages/*'
+  - 'examples/*'
+
+# pnpm >=10 blocks dependency build scripts unless explicitly allowlisted.
+# esbuild (via tsup) links its platform binary in a postinstall.
+# @parcel/watcher (via tsup/tailwind watch mode) compiles a native file watcher.
+allowBuilds:
+  '@parcel/watcher': true
+  esbuild: true
+  # Denied, not missing: msw arrives under the shadcn CLI and its postinstall only copies a mock
+  # service worker we never serve.
+  msw: false
+
+# Dev-tooling advisories only; `pnpm audit --prod` is clean and none of this reaches a published
+# artifact.
+#
+# Two are deliberately left open, so do not "fix" them from an audit report. esbuild >=0.28.1 is a
+# low-severity Windows-only dev-server file read, and forcing it breaks Vite's own transpile
+# ("Transforming destructuring to the configured target environment is not supported yet"). The
+# vitest mocker path traversal needs vitest 4, a major bump of the test runner for a moderate
+# advisory that never leaves a dev machine.
+#
+# This block stays LAST in the file: the React 19 leg of ci.yml appends its pins straight under it.
+overrides:
+  minimatch: '>=10.2.3 <11'
+  brace-expansion@>=1.0.0 <2.0.0: '>=1.1.18 <2'
+  brace-expansion@>=2.0.0 <3.0.0: '>=2.1.4 <3'
+  brace-expansion@>=4.0.0: '>=5.0.9 <6'
+  js-yaml: '>=4.3.2 <5'
+  nanoid: '>=3.3.18 <4'

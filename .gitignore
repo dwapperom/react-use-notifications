@@ -1,0 +1,12 @@
+node_modules/
+dist/
+coverage/
+examples/playground/public/sw.js
+examples/playground/public/r/
+*.tsbuildinfo
+.DS_Store
+.eslintcache
+test-results/
+playwright-report/
+blob-report/
+.playwright/

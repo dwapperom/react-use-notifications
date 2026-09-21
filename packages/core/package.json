@@ -1,0 +1,121 @@
+{
+  "name": "react-use-notifications",
+  "version": "0.1.0",
+  "description": "React hooks for the Web Notifications API with live permission syncing, service worker actions, navigate and maxActions",
+  "license": "MIT",
+  "author": "dwapperom",
+  "homepage": "https://github.com/dwapperom/react-use-notifications#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dwapperom/react-use-notifications.git",
+    "directory": "packages/core"
+  },
+  "bugs": {
+    "url": "https://github.com/dwapperom/react-use-notifications/issues"
+  },
+  "keywords": [
+    "react",
+    "hooks",
+    "notifications",
+    "web-notifications",
+    "service-worker",
+    "pwa"
+  ],
+  "sideEffects": false,
+  "type": "commonjs",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    },
+    "./sw": {
+      "import": {
+        "types": "./dist/sw/index.d.mts",
+        "default": "./dist/sw/index.mjs"
+      },
+      "require": {
+        "types": "./dist/sw/index.d.ts",
+        "default": "./dist/sw/index.js"
+      }
+    },
+    "./internal": {
+      "import": {
+        "types": "./dist/internal/index.d.mts",
+        "default": "./dist/internal/index.mjs"
+      },
+      "require": {
+        "types": "./dist/internal/index.d.ts",
+        "default": "./dist/internal/index.js"
+      }
+    },
+    "./testing": {
+      "import": {
+        "types": "./dist/testing/index.d.mts",
+        "default": "./dist/testing/index.mjs"
+      },
+      "require": {
+        "types": "./dist/testing/index.d.ts",
+        "default": "./dist/testing/index.js"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      "sw": [
+        "./dist/sw/index.d.ts"
+      ],
+      "internal": [
+        "./dist/internal/index.d.ts"
+      ],
+      "testing": [
+        "./dist/testing/index.d.ts"
+      ]
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsup src/index.ts src/sw/index.ts src/internal/index.ts src/testing/index.ts --format cjs,esm --dts --clean --sourcemap",
+    "dev": "tsup src/index.ts src/sw/index.ts src/internal/index.ts src/testing/index.ts --format cjs,esm --dts --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "check:pkg": "publint && attw --pack .",
+    "prepublishOnly": "pnpm run build && pnpm run typecheck && pnpm run test && pnpm run check:pkg",
+    "clean": "rm -rf dist node_modules coverage"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.2",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.1.0",
+    "@types/react": "^18.2.48",
+    "@types/react-dom": "^18.2.18",
+    "@vitejs/plugin-react": "^4.3.4",
+    "@vitest/coverage-v8": "^3.2.7",
+    "jsdom": "^25.0.1",
+    "publint": "^0.3.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.3",
+    "vitest": "^3.0.2"
+  }
+}
