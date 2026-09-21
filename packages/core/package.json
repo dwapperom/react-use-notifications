@@ -1,6 +1,6 @@
 {
   "name": "react-use-notifications",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "React hooks for the Web Notifications API with live permission syncing, service worker actions, navigate and maxActions",
   "license": "MIT",
   "author": "dwapperom",
