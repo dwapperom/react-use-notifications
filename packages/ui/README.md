@@ -122,53 +122,32 @@ Registration and notification options such as `icon` live on core's `Notificatio
 
 ## A dashboard that knows where you are looking
 
-`auto` is worth spelling out, because it decides per call rather than per app. It checks focus, not
-visibility: a tab parked on a second monitor is `visible` but nobody is reading it, so that one
-still goes to the operating system.
+`auto` decides per call rather than per app, and it checks focus, not visibility: a tab parked on
+a second monitor is `visible` but nobody is reading it, so that one still goes to the operating
+system.
 
 ```tsx
-import { NotificationPresentation, ToastVariant, useToaster } from 'react-use-notifications-ui';
-
-const DeployWatcher = () => {
-  const { show, close } = useToaster();
-
-  useEventSource('/api/deploys', async (deploy) => {
-    const tag = `deploy-${deploy.id}`;
-
-    if (deploy.status === 'cancelled') {
-      await close(tag);
-      return;
-    }
-
-    if (deploy.status === 'running') {
-      await show(`Deploying ${deploy.service}`, { tag, variant: ToastVariant.Default });
-      return;
-    }
-
-    const failed = deploy.status === 'failed';
-    await show(failed ? `${deploy.service} failed` : `${deploy.service} is live`, {
-      tag,
-      body: failed ? deploy.error : `Finished in ${deploy.duration}s`,
-      variant: failed ? ToastVariant.Danger : ToastVariant.Success,
-      // A failure is worth interrupting for even when the user is looking right at the page.
-      presentation: failed ? NotificationPresentation.Native : NotificationPresentation.Auto,
-    });
-  });
-
-  return null;
-};
+await show(failed ? `${service} failed` : `${service} is live`, {
+  tag: `deploy-${id}`,
+  variant: failed ? ToastVariant.Danger : ToastVariant.Success,
+  // A failure is worth interrupting for even when the user is looking right at the page.
+  presentation: failed ? NotificationPresentation.Native : NotificationPresentation.Auto,
+});
 ```
 
-The `tag` is doing real work in both directions. Natively it replaces the previous notification for
-that deploy instead of stacking three of them, and `close(tag)` reaches the in-app toast and the
-operating system notification with one call, whichever one `auto` ended up picking.
+The `tag` works in both directions. Natively it replaces the previous notification for that deploy
+instead of stacking three, and `close(tag)` reaches the in-app toast and the operating system copy
+with one call, whichever one `auto` picked.
 
-Every `show()` tells you which way it went, which is what you want in a test:
+Every `show()` tells you which way it went:
 
 ```ts
 const { native, toastId } = await show('Deploying api');
 // native === null means it was drawn in the page.
 ```
+
+The whole recipe runs in the [playground](https://dennis.is-a.dev/react-use-notifications/) under
+Recipes, with its source beside it.
 
 ## Two ways in
 
