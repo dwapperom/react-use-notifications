@@ -11,6 +11,7 @@ import {
 } from 'react-use-notifications';
 import { closePersistent, useLatest } from 'react-use-notifications/internal';
 
+import { useInboxActions } from '../../inbox/context/InboxContext';
 import { useToasterContext } from '../context/ToasterContext';
 import {
   DEFAULT_TOAST_DURATION_MS,
@@ -20,6 +21,7 @@ import {
 } from '../Toast.constants';
 import { useToastQueue } from './useToastQueue';
 
+import type { NewInboxItem } from '../../inbox/Inbox.types';
 import type { ToastItem } from '../Toast.types';
 
 export type { ToastItem };
@@ -30,21 +32,36 @@ export interface UseToasterOptions extends UseNotificationsOptions {
   variant?: ToastVariant;
 }
 
+export type InboxOptions = Pick<NewInboxItem, 'id' | 'receivedAt' | 'category'>;
+
 export interface ToasterShowOptions extends WebNotificationOptions {
   variant?: ToastVariant;
   presentation?: NotificationPresentation;
+  inbox?: boolean | InboxOptions;
 }
 
 export interface ToasterShowResult {
   native: ShowResult | null;
   toastId: string | null;
+  itemId: string | null;
 }
+
+type PresentResult = Omit<ToasterShowResult, 'itemId'>;
 
 export interface UseToasterReturn extends Omit<UseNotificationsReturn, 'show'> {
   show: (title: string, options?: ToasterShowOptions) => Promise<ToasterShowResult>;
   dismiss: (id: string) => void;
   dismissAll: () => void;
 }
+
+const toNativeOptions = ({
+  variant: _variant,
+  presentation: _presentation,
+  inbox: _inbox,
+  ...nativeOptions
+}: ToasterShowOptions): WebNotificationOptions => {
+  return nativeOptions;
+};
 
 const isDocumentFocused = (): boolean => {
   if (typeof document === 'undefined') {
@@ -56,8 +73,10 @@ const isDocumentFocused = (): boolean => {
 
 export const useToaster = (options: UseToasterOptions = {}): UseToasterReturn => {
   const context = useToasterContext();
+  const inboxActions = useInboxActions();
   const localQueue = useToastQueue();
   const actions = context?.actions ?? localQueue.actions;
+  const hasProvider = context !== null;
 
   const {
     presentation: presentationOption,
@@ -87,9 +106,15 @@ export const useToaster = (options: UseToasterOptions = {}): UseToasterReturn =>
     }
   }, [closeNative, registration]);
 
+  const {
+    registration: _registration,
+    closeOnUnmount: _closeOnUnmount,
+    ...notificationDefaults
+  } = notificationOptions;
+
   const defaultsRef = useLatest({
     ...notificationContext?.defaultOptions,
-    ...notificationOptions,
+    ...notificationDefaults,
   });
 
   const pushToast = useCallback((
@@ -97,6 +122,10 @@ export const useToaster = (options: UseToasterOptions = {}): UseToasterReturn =>
     merged: ToasterShowOptions,
     reason: FallbackReason,
   ): string => {
+    if (!hasProvider) {
+      console.error('[react-use-notifications-ui] in-app toasts need a <ToasterProvider>');
+    }
+
     return push({
       title,
       owner,
@@ -108,16 +137,46 @@ export const useToaster = (options: UseToasterOptions = {}): UseToasterReturn =>
       actions: merged.actions ?? [],
       reason,
     });
-  }, [push, duration, variant, owner]);
+  }, [push, duration, variant, owner, hasProvider]);
 
-  const show = useCallback(async (
+  const recordInInbox = useCallback(async (
     title: string,
-    showOptions: ToasterShowOptions = {},
-  ): Promise<ToasterShowResult> => {
-    const mode = showOptions.presentation ?? presentation;
+    merged: ToasterShowOptions,
+  ): Promise<string | null> => {
+    if (!inboxActions) {
+      console.error('[react-use-notifications-ui] inbox needs an <InboxProvider>');
 
-    const merged: ToasterShowOptions = { ...defaultsRef.current, ...showOptions };
+      return null;
+    }
+
+    const options = typeof merged.inbox === 'object'
+      ? merged.inbox
+      : {};
+
+    return inboxActions.add({
+      ...options,
+      title,
+      tag: merged.tag,
+      body: merged.body,
+      icon: merged.icon,
+      href: merged.navigate,
+      data: merged.data,
+    });
+  }, [inboxActions]);
+
+  const present = useCallback(async (
+    title: string,
+    merged: ToasterShowOptions,
+  ): Promise<PresentResult> => {
+    const mode = merged.presentation ?? presentation;
     const { tag } = merged;
+
+    if (mode === NotificationPresentation.None) {
+      return {
+        native: null,
+        toastId: null,
+      };
+    }
 
     const drawInApp = mode === NotificationPresentation.InApp
       || (mode === NotificationPresentation.Auto && isDocumentFocused());
@@ -137,8 +196,7 @@ export const useToaster = (options: UseToasterOptions = {}): UseToasterReturn =>
       };
     }
 
-    const { variant: _variant, presentation: _presentation, ...nativeOptions } = showOptions;
-    const native = await showNative(title, nativeOptions);
+    const native = await showNative(title, toNativeOptions(merged));
     if (native.outcome === NotificationOutcome.Shown) {
       if (tag) {
         dismissByTag(tag);
@@ -154,7 +212,26 @@ export const useToaster = (options: UseToasterOptions = {}): UseToasterReturn =>
       native,
       toastId: pushToast(title, merged, FallbackReason.NativeUnavailable),
     };
-  }, [showNative, reconcileNative, dismissByTag, presentation, pushToast, defaultsRef]);
+  }, [showNative, reconcileNative, dismissByTag, presentation, pushToast]);
+
+  const show = useCallback(async (
+    title: string,
+    showOptions: ToasterShowOptions = {},
+  ): Promise<ToasterShowResult> => {
+    const merged: ToasterShowOptions = { ...defaultsRef.current, ...showOptions };
+
+    const [itemId, presented] = await Promise.all([
+      merged.inbox
+        ? recordInInbox(title, merged)
+        : null,
+      present(title, merged),
+    ]);
+
+    return {
+      ...presented,
+      itemId,
+    };
+  }, [defaultsRef, recordInInbox, present]);
 
   const close = useCallback(async (tag: string) => {
     dismissByTag(tag);

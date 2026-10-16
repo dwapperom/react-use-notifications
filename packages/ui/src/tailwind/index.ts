@@ -3,6 +3,9 @@ export * from '../index';
 export { CounterBadge } from './components/CounterBadge';
 export type { CounterBadgeProps } from './components/CounterBadge';
 
+export { NotificationList } from './components/NotificationList';
+export type { NotificationListProps } from './components/NotificationList';
+
 export { NotificationActionList } from './components/NotificationActionList';
 export type { NotificationActionListProps } from './components/NotificationActionList';
 

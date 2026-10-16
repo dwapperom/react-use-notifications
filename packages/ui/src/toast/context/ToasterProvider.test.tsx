@@ -108,7 +108,8 @@ describe('ToasterProvider', () => {
     expect(result.current.toasts[0]?.variant).toBe(ToastVariant.Success);
   });
 
-  it('fires without a provider, but the in-app list needs one', async () => {
+  it('fires without a provider, but reports the in-app list nobody can read', async () => {
+    const onError = vi.spyOn(console, 'error').mockImplementation(() => {});
     const { result } = renderHook(() =>
       useToasterWithToasts({ presentation: NotificationPresentation.InApp }),
     );
@@ -118,5 +119,25 @@ describe('ToasterProvider', () => {
     });
 
     expect(result.current.toasts).toHaveLength(0);
+    expect(onError).toHaveBeenCalledWith(
+      '[react-use-notifications-ui] in-app toasts need a <ToasterProvider>',
+    );
+    onError.mockRestore();
+  });
+
+  it('stays quiet once the provider is there', async () => {
+    const onError = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const { result } = renderHook(
+      () => useToasterWithToasts({ presentation: NotificationPresentation.InApp }),
+      { wrapper: ({ children }) => <ToasterProvider>{children}</ToasterProvider> },
+    );
+
+    await act(async () => {
+      await result.current.show('Standalone');
+    });
+
+    expect(result.current.toasts).toHaveLength(1);
+    expect(onError).not.toHaveBeenCalled();
+    onError.mockRestore();
   });
 });

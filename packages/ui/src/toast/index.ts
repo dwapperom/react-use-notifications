@@ -10,6 +10,7 @@ export type { ToasterDefaults } from './context/ToasterContext';
 
 export { useToaster } from './hooks/useToaster';
 export type {
+  InboxOptions,
   ToasterShowOptions,
   ToasterShowResult,
   UseToasterOptions,

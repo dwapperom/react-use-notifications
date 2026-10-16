@@ -1,6 +1,7 @@
 import { NotificationProvider } from 'react-use-notifications';
-import { ToasterProvider } from 'react-use-notifications-ui';
+import { InboxProvider, ToasterProvider } from 'react-use-notifications-ui';
 
+import { inboxStore } from './inbox';
 import { Playground } from './Playground';
 import { useServiceWorkerRegistration } from './useServiceWorkerRegistration';
 
@@ -9,9 +10,11 @@ export const App = () => {
 
   return (
     <NotificationProvider registration={registration}>
-      <ToasterProvider>
-        <Playground registrationStatus={registration ? 'ready' : (error ?? 'starting')} />
-      </ToasterProvider>
+      <InboxProvider store={inboxStore}>
+        <ToasterProvider>
+          <Playground registrationStatus={registration ? 'ready' : (error ?? 'starting')} />
+        </ToasterProvider>
+      </InboxProvider>
     </NotificationProvider>
   );
 };

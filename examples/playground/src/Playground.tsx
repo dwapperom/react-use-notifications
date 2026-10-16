@@ -7,6 +7,7 @@ import {
   CapabilitiesSection,
   ClosingSection,
   DeliverySection,
+  InboxSection,
   NavigateSection,
   PageHeader,
   PermissionGateSection,
@@ -29,6 +30,7 @@ export const Playground = ({ registrationStatus }: { registrationStatus: string 
         <DeliverySection />
         <ClosingSection />
         <PresentationSection />
+        <InboxSection />
         <PermissionGateSection />
         <RecipesSection />
         <CapabilitiesSection />

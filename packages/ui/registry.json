@@ -18,6 +18,20 @@
       ]
     },
     {
+      "name": "notification-list",
+      "type": "registry:ui",
+      "title": "Notification List",
+      "description": "The inbox list: unread state, and a click that marks the item read before handing it to your router.",
+      "dependencies": ["react-use-notifications", "react-use-notifications-ui"],
+      "files": [
+        {
+          "path": "registry/notification-list.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/notification-list.tsx"
+        }
+      ]
+    },
+    {
       "name": "request-permission-button",
       "type": "registry:ui",
       "title": "Request Permission Button",

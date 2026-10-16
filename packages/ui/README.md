@@ -59,6 +59,7 @@ sends a real one when that makes sense, and draws it in the page when it does no
 | `auto` (default) | In the page while the tab is focused, operating system once it is not            |
 | `in-app`         | Always in the page. Never touches the Notifications API, so nobody gets prompted |
 | `native`         | Always try the operating system, fall back in-app only when it says no           |
+| `none`           | Nothing is shown. Only useful with `inbox`, where the record is the point        |
 
 `in-app` is the interesting one. Because the browser API never gets called, there is no permission
 prompt, no `denied` state to dig yourself out of, and it looks the same in every browser.
@@ -148,6 +149,126 @@ const { native, toastId } = await show('Deploying api');
 
 The whole recipe runs in the [playground](https://dennis.is-a.dev/react-use-notifications/) under
 Recipes, with its source beside it.
+
+## The inbox
+
+A toast is gone in six seconds. An inbox item is a record of something that happened while you
+were away: it survives a refresh and carries a read state. Recording comes on top of the normal
+presentation, so the same call can raise an OS notification and keep the record.
+
+```tsx
+import { localStorageStore, InboxProvider } from 'react-use-notifications-ui';
+
+const store = localStorageStore();
+
+<InboxProvider store={store}>
+  <App />
+</InboxProvider>;
+```
+
+```tsx
+const { show } = useToaster();
+
+// Toast or OS notification as usual, and a record in the inbox.
+await show('Build broke', { inbox: true });
+
+// Only the unread count moves: no Notifications API, no permission prompt.
+await show('Ada replied', {
+  inbox: true,
+  presentation: NotificationPresentation.None,
+  navigate: '/threads/42',
+});
+
+// Always a toast, filed under a category.
+await show('Deploy finished', {
+  inbox: { category: 'deploy' },
+  presentation: NotificationPresentation.InApp,
+});
+```
+
+Reading it back:
+
+```tsx
+import { useInbox } from 'react-use-notifications-ui';
+import { CounterBadge, NotificationList } from 'react-use-notifications-ui/tailwind';
+
+const Bell = () => <CounterBadge count={useInbox().unread} />;
+
+const Panel = () => <NotificationList onSelect={(item) => router.push(item.href)} />;
+```
+
+A click marks the item read before `onSelect` runs.
+
+Timestamps use `Intl.RelativeTimeFormat` in the visitor's locale. Pass `formatTime` to change
+that.
+
+`localStorageStore()` is per browser and keeps 200 items. Where localStorage is blocked, in an old
+Safari private window, with all cookies refused or inside a sandboxed iframe, it logs a warning
+once and keeps the inbox in memory for the session. A write the browser refuses later, such as a
+full quota, rejects, and the provider undoes it. For a server-backed inbox, hand the
+provider your own store:
+
+```ts
+interface InboxStore {
+  list: () => Promise<InboxItem[]>;
+  add: (item: InboxItem) => Promise<void>;
+  markRead: (id: string, readAt: number) => Promise<void>;
+  markAllRead: (readAt: number) => Promise<void>;
+  remove: (id: string) => Promise<void>;
+  clear: () => Promise<void>;
+  subscribe?: (onChange: () => void) => () => void;
+  limit?: number;
+}
+```
+
+`add` is an upsert: an item with an id the store already has replaces it but keeps its `readAt`,
+and an item with a `tag` replaces whatever carried that tag before. `markRead` leaves an item that
+is already read alone, so its `readAt` keeps the moment it was first read.
+
+`markAllRead` marks whatever is still unread in the store, so it never depends on which items the
+page happens to have loaded. `limit` is how many items the store keeps, newest first; the provider
+holds its own state to the same number, so the list on screen never runs past what a reload would
+bring back. Leave it out for no cap.
+
+Writes reach the store one at a time, in the order they were made, so marking an item read straight
+after adding it never overtakes the add. The page updates before the store answers; when a write
+fails, the provider logs it and undoes that one change, so the screen falls back to what was
+actually saved, even when the store cannot be reached to read it back. None of the actions reject, which is what lets `NotificationList` fire them from a
+click without a handler.
+
+`subscribe` is optional and exists for server push and cross-tab sync; `localStorageStore` uses it
+for the `storage` event. Retention is the store's call, not the library's.
+
+`list()` runs on mount and again after every `subscribe` call. A write that lands while `list()` is
+still in flight makes the provider read again once that write has reached the store, so a
+notification arriving during the first load does not cost you the rest of the inbox. When `list()`
+rejects, `useInbox().loadFailed` turns true and the items stay as they were, so an outage does not
+pass for an empty inbox.
+
+When the page already has the items, from a server render or a route loader, pass them in and the
+first render shows them instead of an empty inbox:
+
+```tsx
+<InboxProvider store={store} initialItems={loaderData.inbox}>
+```
+
+A notification that starts on the server already has an id there. Pass it along, and showing it
+again updates that item rather than adding a second one; a read item stays read:
+
+```tsx
+socket.on('notification', (message) => {
+  void show(message.title, {
+    body: message.body,
+    inbox: { id: message.id, receivedAt: message.createdAt },
+  });
+});
+```
+
+`show()` never rejects over the inbox. It records and presents side by side, so a slow store does not
+hold the toast back. A store that refuses the item or a missing `<InboxProvider>` is logged and comes
+back as `itemId: null` while the toast or OS notification still goes out; `useInbox().add()` answers
+`null` the same way, so an id always points at an item that was saved. Calling `useInbox().add()` outside a provider throws
+instead: there the inbox is the whole point of the call.
 
 ## Two ways in
 

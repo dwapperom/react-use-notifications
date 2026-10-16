@@ -4,6 +4,7 @@ import {
   NotificationPermissionState,
   NotificationOutcome,
 } from '../Notification.constants';
+import { createId } from './createId';
 import {
   isNotificationSupported,
   isSecureContext,
@@ -12,7 +13,6 @@ import {
 } from './environment';
 import {
   closePersistent,
-  createAutoTag,
   createPersistentHandle,
   createTransientHandle,
 } from './handles';
@@ -125,7 +125,7 @@ const showPersistent = async (
   requestedActions: WebNotificationAction[],
 ): Promise<ShowResult> => {
   const { accepted, clamped } = clampActions(requestedActions);
-  const tag = options.tag || createAutoTag();
+  const tag = options.tag || createId('run');
 
   try {
     await registration.showNotification(title, toPersistentOptions({ ...options, tag }, accepted));

@@ -7,24 +7,11 @@ import {
 } from 'vitest';
 
 import { createFakeRegistration } from '../test/fakes';
-import { closePersistent, createAutoTag } from './handles';
+import { closePersistent } from './handles';
 
 describe('handles', () => {
   afterEach(() => {
     vi.unstubAllGlobals();
-  });
-
-  it('generates a unique tag from randomUUID', () => {
-    expect(createAutoTag()).not.toBe(createAutoTag());
-  });
-
-  it('still generates unique tags where randomUUID is missing', () => {
-    vi.stubGlobal('crypto', {});
-
-    const tags = [createAutoTag(), createAutoTag(), createAutoTag()];
-
-    expect(new Set(tags).size).toBe(3);
-    expect(tags.every((tag) => tag.startsWith('run:'))).toBe(true);
   });
 
   it('closes every notification carrying the tag', async () => {

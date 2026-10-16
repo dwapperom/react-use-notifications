@@ -20,6 +20,7 @@ export const NotificationPresentation = {
   Auto: 'auto',
   InApp: 'in-app',
   Native: 'native',
+  None: 'none',
 } as const;
 
 export type NotificationPresentation

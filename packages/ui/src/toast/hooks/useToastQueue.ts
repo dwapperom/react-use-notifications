@@ -6,6 +6,8 @@ import {
   useState,
 } from 'react';
 
+import { createId } from 'react-use-notifications/internal';
+
 import type { ToastItem } from '../Toast.types';
 
 export interface ToastQueueActions {
@@ -21,19 +23,6 @@ export interface ToastQueue {
 }
 
 const MAX_TOASTS = 50;
-
-let toastCounter = 0;
-
-const createToastId = (): string => {
-  const uuid = globalThis.crypto?.randomUUID?.();
-  if (uuid) {
-    return `run-toast:${uuid}`;
-  }
-
-  toastCounter += 1;
-
-  return `run-toast:${Date.now()}-${toastCounter}`;
-};
 
 export const useToastQueue = (): ToastQueue => {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
@@ -65,7 +54,7 @@ export const useToastQueue = (): ToastQueue => {
   }, [removeWhere]);
 
   const push = useCallback((toast: Omit<ToastItem, 'id'>) => {
-    const id = createToastId();
+    const id = createId('run-toast');
 
     setToasts((current) => {
       const kept = toast.tag ? current.filter((existing) => existing.tag !== toast.tag) : current;

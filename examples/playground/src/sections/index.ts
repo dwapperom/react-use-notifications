@@ -2,6 +2,7 @@ export { ActionsSection } from './ActionsSection';
 export { CapabilitiesSection } from './CapabilitiesSection';
 export { ClosingSection } from './ClosingSection';
 export { DeliverySection } from './DeliverySection';
+export { InboxSection } from './InboxSection';
 export { NavigateSection } from './NavigateSection';
 export { PageHeader } from './PageHeader';
 export { PermissionGateSection } from './PermissionGateSection';

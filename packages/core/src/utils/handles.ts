@@ -2,19 +2,6 @@ import { NotificationDelivery } from '../Notification.constants';
 
 import type { NotificationHandle } from '../Notification.types';
 
-let autoTagCounter = 0;
-
-export const createAutoTag = (): string => {
-  const uuid = globalThis.crypto?.randomUUID?.();
-  if (uuid) {
-    return `run:${uuid}`;
-  }
-
-  autoTagCounter += 1;
-
-  return `run:${Date.now()}-${autoTagCounter}`;
-};
-
 export const closePersistent = async (
   registration: ServiceWorkerRegistration,
   tag?: string,
